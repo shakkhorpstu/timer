@@ -1843,14 +1843,37 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
+//
+//
+//
 /* harmony default export */ __webpack_exports__["default"] = ({
+  props: ['data'],
   data: function data() {
     return {
       totalTime: 0,
       hour: 0,
       minute: 0,
       second: 0,
-      duration: 1
+      duration: 1,
+      // items: [
+      // 	{id: 1, name: 'Potato', options: ['op1', 'op2', 'op3']},
+      // 	{id: 1, name: 'Cucumber' options: ['op4', 'op5', 'op6']},
+      // 	{id: 1, name: 'Brinjal', options: ['op7', 'op8', 'op9']},
+      // 	{id: 1, name: 'Finger', options: ['op10', 'op11', 'op12']}
+      // ],
+      item_id: '',
+      optionValue: [],
+      questionanswers: [{
+        question_id: '',
+        index: '',
+        answer_option: ''
+      }],
+      answer: [{
+        id: '',
+        answered: ''
+      }]
     };
   },
   methods: {
@@ -1872,6 +1895,66 @@ __webpack_require__.r(__webpack_exports__);
         this.totalTime = ''; // this.submit();
         // alert("Time's up.\nRedirecting...");
       }
+    },
+    push: function push(questionIndex, questionId, givenAnswer, correctAnswer) {
+      if (this.answer.length > 1) {
+        for (var i = 1; i <= this.answer.length; i++) {
+          if (this.answer[i]) {
+            if (this.answer[i].id == questionId && this.answer[i].answered != givenAnswer) {
+              this.answer[i].answered = givenAnswer;
+              this.replaceToTotal(questionId, questionIndex, givenAnswer);
+
+              if (givenAnswer == correctAnswer) {
+                this.right += 1;
+              } else {
+                this.right -= 1;
+              }
+
+              break;
+            }
+          } else {
+            if (this.answer.length == i) {
+              this.answer.push({
+                id: questionId,
+                answered: givenAnswer
+              });
+              this.pushToTotal(questionId, questionIndex, givenAnswer);
+
+              if (givenAnswer == correctAnswer) {
+                this.right += 1;
+              }
+
+              break;
+            }
+          }
+        }
+      } else {
+        this.answer.push({
+          id: questionId,
+          answered: givenAnswer
+        });
+        this.pushToTotal(questionId, questionIndex, givenAnswer);
+
+        if (givenAnswer == correctAnswer) {
+          this.right += 1;
+        }
+      }
+    },
+    replaceToTotal: function replaceToTotal(question_id, index, option) {
+      for (var i = 1; i <= this.questionanswers.length; i++) {
+        if (this.questionanswers[i]) {
+          if (this.questionanswers[i].question_id == question_id) {
+            this.questionanswers[i].answer_option = option;
+          }
+        }
+      }
+    },
+    pushToTotal: function pushToTotal(question_id, index, option) {
+      this.questionanswers.push({
+        question_id: question_id,
+        index: index,
+        answer_option: option
+      });
     }
   },
   mounted: function mounted() {
@@ -47446,11 +47529,61 @@ var render = function() {
             )
           ]),
           _vm._v(" "),
-          _c("div", { staticClass: "card-body" }, [
-            _vm._v(
-              "\n                    I'm an example component.\n                "
-            )
-          ])
+          _c(
+            "div",
+            { staticClass: "card-body" },
+            _vm._l(_vm.data, function(item, index) {
+              return _c(
+                "div",
+                { staticClass: "form-group" },
+                [
+                  _c("h4", [
+                    _vm._v(_vm._s(index + 1) + " " + _vm._s(item.name))
+                  ]),
+                  _vm._v(" "),
+                  _vm._l(item.options, function(option, op_index) {
+                    return _c("span", {}, [
+                      _c("input", {
+                        directives: [
+                          {
+                            name: "model",
+                            rawName: "v-model",
+                            value: _vm.optionValue[item.id],
+                            expression: "optionValue[item.id]"
+                          }
+                        ],
+                        attrs: { type: "radio" },
+                        domProps: {
+                          value: item.id + "_" + op_index,
+                          checked: _vm._q(
+                            _vm.optionValue[item.id],
+                            item.id + "_" + op_index
+                          )
+                        },
+                        on: {
+                          change: [
+                            function($event) {
+                              return _vm.$set(
+                                _vm.optionValue,
+                                item.id,
+                                item.id + "_" + op_index
+                              )
+                            },
+                            function($event) {
+                              return _vm.push(index + 1, item.id, option, 11)
+                            }
+                          ]
+                        }
+                      }),
+                      _vm._v(_vm._s(" " + option + "  ") + "\n\t\t\t\t\t\t")
+                    ])
+                  })
+                ],
+                2
+              )
+            }),
+            0
+          )
         ])
       ])
     ])
@@ -59694,8 +59827,8 @@ if (token) {
 window.Pusher = __webpack_require__(/*! pusher-js */ "./node_modules/pusher-js/dist/web/pusher.js");
 window.Echo = new laravel_echo__WEBPACK_IMPORTED_MODULE_0__["default"]({
   broadcaster: 'pusher',
-  key: "",
-  cluster: "mt1",
+  key: "540d757de88c7a6949ac",
+  cluster: "ap2",
   encrypted: true
 });
 

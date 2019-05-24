@@ -7,8 +7,8 @@
 </head>
 <body>
 	<div class="container" id="app">
-		{{-- <example-component></example-component> --}}
-		<echo-component></echo-component>
+		<example-component :data="{{ json_encode($data) }}"></example-component>
+		{{-- <echo-component></echo-component> --}}
 	</div>
 
 	<script src="{{ asset('js/app.js') }}"></script>

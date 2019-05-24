@@ -12,7 +12,24 @@
 */
 
 Route::get('/', function () {
-    return view('test');
+	$data = array(
+		[
+			'id' => 1,
+			'name' => 'Mah',
+			'options' => [11, 12, 13, 14]
+		],
+		[
+			'id' => 2,
+			'name' => 'Mah2',
+			'options' => [21, 22, 23, 24]
+		],
+		[
+			'id' => 3,
+			'name' => 'Mah3',
+			'options' => [31, 32, 33, 34]
+		]
+	);
+    return view('test', compact('data'));
 });
 
 Route::post('/message', 'MessageController@post');
