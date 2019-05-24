@@ -1,0 +1,103 @@
+=> view part
+
+<div class="col-md-3">
+    <img :src="url+'/'+profile_image" width="250" height="100" v-if="!image_loaded">
+    <img :src="profile_image" width="250" height="100" v-else>
+    <br><br>
+    <input type="file" class="form-control" @change="onImageChange">
+    <button class="btn btn-success mt-2" @click="updateProfilePicture">Upload</button>
+</div>
+
+
+
+
+=> script part
+
+	=> data
+		edit_form: false,
+        name: '',
+        mobile: '',
+        success_message: '', 
+        error_message: '', 
+        profile_image: '',
+        image: '',
+        image_loaded: false,
+        url: ''
+
+
+
+    => method part
+    	onImageChange(e) {
+            var files = e.target.files || e.dataTransfer.files;
+            this.createImage(files[0]);
+        },
+        createImage(file) {
+            var image = new Image;
+            var reader = new FileReader();
+            reader.onload = (e) => {
+                this.image = e.target.result;
+                this.profile_image = this.image;
+            };
+            reader.readAsDataURL(file);
+            this.image_loaded = true;
+        },
+        updateProfilePicture() {
+            if (this.image) {
+                axios.post(this.$store.state.front_url + '/user/change-image', {
+                    image: this.image
+                }).then(function (response){
+                    toastr.success("Picture has been uploaded successfully");
+                }).catch(function (error){
+                    console.log(error);
+                });
+            }
+        }
+
+
+
+
+
+// controller part
+public function changeImage(Request $request)
+    {
+        $img = $request->get('image');
+
+
+        //remove extra parts
+        $exploded =  explode(",", $img);
+
+        //Extension
+        if (str_contains($exploded[0], 'gif')) {
+            $ext = 'gif';
+        } else if (str_contains($exploded[0], 'jpg')) {
+            $ext = 'jpg';
+        } else if (str_contains($exploded[0], 'png')) {
+            $ext = 'png';
+        } else if (str_contains($exploded[0], 'jpeg')) {
+            $ext = 'jpeg';
+        }
+
+        // Decode
+        $decoded_data = base64_decode($exploded[1]);
+
+        $file_name = time(). ".".$ext;
+
+        // Local folder path
+        $path = "public/images/user/" .$file_name;
+
+        // Upload
+        if (file_put_contents($path, $decoded_data)) {
+            $user = Auth::user();
+            if($user->image){
+                ImageUploadHelper::delete($user->image);
+            }
+            $user->image = 'public/images/user/'.$file_name;
+            $user->save();
+            return json_encode(['uploaded' => 1]);
+        }else{
+            return json_encode(['uploaded' => 0]);
+        }
+    }
+
+    
+
